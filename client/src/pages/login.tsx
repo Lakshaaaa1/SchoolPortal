@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 export default function Login() {
-  const [loginType, setLoginType] = useState<"studentId" | "mobile">("studentId");
+  const [loginType, setLoginType] = useState<"login_id" | "phone">("login_id");
   const [credential, setCredential] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -59,36 +59,36 @@ export default function Login() {
               <div className="flex space-x-2">
                 <Button
                   type="button"
-                  variant={loginType === "studentId" ? "default" : "secondary"}
+                  variant={loginType === "login_id" ? "default" : "secondary"}
                   className="flex-1"
-                  onClick={() => setLoginType("studentId")}
+                  onClick={() => setLoginType("login_id")}
                 >
-                  Student ID
+                  Login ID
                 </Button>
                 <Button
                   type="button"
-                  variant={loginType === "mobile" ? "default" : "secondary"}
+                  variant={loginType === "phone" ? "default" : "secondary"}
                   className="flex-1"
-                  onClick={() => setLoginType("mobile")}
+                  onClick={() => setLoginType("phone")}
                 >
-                  Mobile
+                  Phone
                 </Button>
               </div>
             </div>
 
             <div>
               <Label htmlFor="credential">
-                {loginType === "studentId" ? "Student ID" : "Mobile Number"}
+                {loginType === "login_id" ? "Login ID" : "Phone Number"}
               </Label>
               <Input
                 id="credential"
-                type={loginType === "mobile" ? "tel" : "text"}
+                type={loginType === "phone" ? "tel" : "text"}
                 value={credential}
                 onChange={(e) => setCredential(e.target.value)}
                 placeholder={
-                  loginType === "studentId" 
-                    ? "Enter your Student ID" 
-                    : "Enter your Mobile Number"
+                  loginType === "login_id" 
+                    ? "Enter your Login ID" 
+                    : "Enter your Phone Number"
                 }
                 className="mt-2"
               />

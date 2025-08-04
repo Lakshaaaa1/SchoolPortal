@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { apiRequest } from "@/lib/queryClient";
+import { supabase } from "@/lib/supabase";
 import type { Student, LoginCredentials } from "@shared/schema";
 
 interface AuthContextType {
@@ -16,21 +16,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in (in a real app, check for valid session/token)
+    // Check if user is already logged in
     const savedStudent = localStorage.getItem("student");
     if (savedStudent) {
-      setStudent(JSON.parse(savedStudent));
+      try {
+        setStudent(JSON.parse(savedStudent));
+      } catch (error) {
+        localStorage.removeItem("student");
+      }
     }
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
     setIsLoading(true);
     try {
-      const response = await apiRequest("POST", "/api/auth/login", credentials);
-      const data = await response.json();
+      const { credential, password, loginType } = credentials;
       
-      setStudent(data.student);
-      localStorage.setItem("student", JSON.stringify(data.student));
+      let query = supabase
+        .from('students')
+        .select('*')
+        .eq('password', password);
+
+      // Query based on login type
+      if (loginType === 'login_id') {
+        query = query.eq('login_id', credential);
+      } else {
+        query = query.or(`phone.eq.${credential},phone1.eq.${credential},phone2.eq.${credential},mobile_2.eq.${credential}`);
+      }
+
+      const { data, error } = await query.single();
+
+      if (error || !data) {
+        throw new Error("Invalid credentials");
+      }
+
+      setStudent(data);
+      localStorage.setItem("student", JSON.stringify(data));
     } catch (error) {
       throw error;
     } finally {

@@ -4,7 +4,9 @@ import {
   BookOpen, 
   CreditCard, 
   Megaphone, 
-  User 
+  User,
+  GraduationCap,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,10 +17,10 @@ interface BottomNavigationProps {
 }
 
 const tabs = [
-  { id: "dashboard", label: "Dashboard", icon: Home },
-  { id: "attendance", label: "Attendance", icon: Calendar },
+  { id: "dashboard", label: "Home", icon: Home },
   { id: "homework", label: "Homework", icon: BookOpen },
-  { id: "fee", label: "Fee", icon: CreditCard },
+  { id: "fees", label: "Fees", icon: CreditCard },
+  { id: "results", label: "Results", icon: GraduationCap },
   { id: "announcements", label: "News", icon: Megaphone },
   { id: "profile", label: "Profile", icon: User },
 ];
