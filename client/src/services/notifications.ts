@@ -220,3 +220,26 @@ export async function requestNotificationPermissions(): Promise<boolean> {
     return false;
   }
 }
+
+
+export async function setupNotificationsSimple() {
+  // Request permission
+  let permStatus = await PushNotifications.requestPermissions();
+  if (permStatus.receive !== 'granted') {
+    console.log("❌ Push notification permission not granted");
+    return;
+  }
+
+  // Register with FCM
+  await PushNotifications.register();
+
+  // Listen for successful registration
+  PushNotifications.addListener('registration', token => {
+    console.log("✅ FCM Token:", token.value);
+  });
+
+  // Listen for registration error
+  PushNotifications.addListener('registrationError', err => {
+    console.error("❌ Registration error:", err);
+  });
+}
