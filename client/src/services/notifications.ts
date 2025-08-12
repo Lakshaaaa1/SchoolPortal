@@ -149,27 +149,29 @@ async function saveTokenToDatabase(studentId: string, className: string, section
 
     if (existingToken) {
       // Update existing token
-      const { error: updateError } = await supabase
+      const { data: updateData, error: updateError } = await supabase
         .from('student_tokens')
         .update(tokenData)
         .eq('student_id', studentId);
 
       if (updateError) {
+        console.error('Supabase update error:', updateError);
+        console.dir(updateError, { depth: null });
         throw updateError;
       }
-      
-      console.log('FCM token updated successfully');
+      console.log('FCM token updated successfully', updateData);
     } else {
       // Insert new token
-      const { error: insertError } = await supabase
+      const { data: insertData, error: insertError } = await supabase
         .from('student_tokens')
         .insert(tokenData);
 
       if (insertError) {
+        console.error('Supabase insert error:', insertError);
+        console.dir(insertError, { depth: null });
         throw insertError;
       }
-      
-      console.log('FCM token saved successfully');
+      console.log('FCM token saved successfully', insertData);
     }
   } catch (error) {
     console.error('Error saving FCM token to database:', error);
