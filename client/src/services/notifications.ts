@@ -174,7 +174,7 @@ async function saveTokenToDatabase(studentId: string, className: string, section
       console.log('FCM token saved successfully', insertData);
     }
   } catch (error) {
-    console.error('Error saving FCM token to database:', error);
+    console.error('Error saving FCM token       abase:', error);
     if (error instanceof Error) {
       console.error('Error details:', error.message, error.stack);
     } else {
