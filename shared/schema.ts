@@ -186,6 +186,57 @@ export const insertLeaveSchema = createInsertSchema(leaves).omit({
   updatedAt: true,
 });
 
+// Additional tables for legacy compatibility
+export const attendance = pgTable("attendance", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  student_id: varchar("student_id").notNull(),
+  date: date("date").notNull(),
+  status: text("status").notNull(), // 'present', 'absent', 'holiday'
+  time_in: text("time_in"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const homework = pgTable("homework", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  student_id: varchar("student_id").notNull(),
+  subject: text("subject").notNull(),
+  teacher: text("teacher").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  due_date: date("due_date").notNull(),
+  status: text("status").default("pending"), // 'pending', 'completed', 'overdue'
+  submitted_at: timestamp("submitted_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const fees = pgTable("fees", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  student_id: varchar("student_id").notNull(),
+  fee_type: text("fee_type").notNull(),
+  amount: decimal("amount").notNull(),
+  due_date: date("due_date").notNull(),
+  status: text("status").default("pending"), // 'pending', 'paid', 'overdue'
+  paid_at: timestamp("paid_at"),
+  academic_year: text("academic_year").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas for additional tables
+export const insertAttendanceSchema = createInsertSchema(attendance).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertHomeworkSchemaLegacy = createInsertSchema(homework).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertFeeSchema = createInsertSchema(fees).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Login schema - supports both login_id and phone
 export const loginSchema = z.object({
   credential: z.string().min(1, "Login ID or phone is required"),
@@ -211,3 +262,11 @@ export type Teacher = typeof teachers.$inferSelect;
 export type Leave = typeof leaves.$inferSelect;
 export type InsertLeave = z.infer<typeof insertLeaveSchema>;
 export type LoginCredentials = z.infer<typeof loginSchema>;
+
+// Legacy compatibility types
+export type Attendance = typeof attendance.$inferSelect;
+export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
+export type Homework = typeof homework.$inferSelect;
+export type InsertHomeworkLegacy = z.infer<typeof insertHomeworkSchemaLegacy>;
+export type Fee = typeof fees.$inferSelect;
+export type InsertFee = z.infer<typeof insertFeeSchema>;

@@ -15,7 +15,7 @@ import { randomUUID } from "crypto";
 export interface IStorage {
   // Students
   getStudent(id: string): Promise<Student | undefined>;
-  getStudentByCredential(credential: string, type: 'studentId' | 'mobile'): Promise<Student | undefined>;
+  getStudentByCredential(credential: string, type: 'login_id' | 'phone'): Promise<Student | undefined>;
   createStudent(student: InsertStudent): Promise<Student>;
   
   // Attendance
@@ -56,18 +56,27 @@ export class MemStorage implements IStorage {
     // Create sample student
     const student: Student = {
       id: randomUUID(),
-      studentId: "STU001234",
       name: "Arjun Kumar",
+      full_name: "Arjun Kumar",
       class: "10",
       section: "A",
-      rollNumber: 15,
-      mobileNumber: "9876543210",
+      login_id: "STU001234",
       password: "password123",
-      fatherName: "Rajesh Kumar",
-      motherName: "Priya Kumar",
-      guardianPhone: "+91 9876543210",
-      guardianEmail: "rajesh.kumar@email.com",
+      fee_status: "partial",
+      phone: "9876543210",
+      phone1: "+91 9876543210",
+      phone2: null,
+      mobile_2: null,
+      email: "arjun.kumar@email.com",
+      address: "123 Main Street, Delhi",
+      parent_name: "Rajesh Kumar",
+      mother_name: "Priya Kumar",
+      parent_relation: "Father",
+      fee_paid: "45000",
+      fee_pending: "15000",
+      discount_amount: "0",
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     this.students.set(student.id, student);
 
@@ -83,10 +92,10 @@ export class MemStorage implements IStorage {
     attendanceRecords.forEach(record => {
       const attendance: Attendance = {
         id: randomUUID(),
-        studentId: student.studentId,
+        student_id: student.login_id,
         date: record.date,
         status: record.status,
-        timeIn: record.timeIn,
+        time_in: record.timeIn,
         createdAt: new Date(),
       };
       this.attendance.set(attendance.id, attendance);
@@ -115,14 +124,14 @@ export class MemStorage implements IStorage {
     homeworkRecords.forEach(record => {
       const homework: Homework = {
         id: randomUUID(),
-        studentId: student.studentId,
+        student_id: student.login_id,
         subject: record.subject,
         teacher: record.teacher,
         title: record.title,
         description: record.description,
-        dueDate: record.dueDate,
+        due_date: record.dueDate,
         status: record.status,
-        submittedAt: record.status === "completed" ? new Date() : null,
+        submitted_at: record.status === "completed" ? new Date() : null,
         createdAt: new Date(),
       };
       this.homework.set(homework.id, homework);
@@ -149,13 +158,13 @@ export class MemStorage implements IStorage {
     feeRecords.forEach(record => {
       const fee: Fee = {
         id: randomUUID(),
-        studentId: student.studentId,
-        feeType: record.feeType,
-        amount: record.amount,
-        dueDate: record.dueDate,
+        student_id: student.login_id,
+        fee_type: record.feeType,
+        amount: record.amount.toString(),
+        due_date: record.dueDate,
         status: record.status,
-        paidAt: record.status === "paid" ? new Date() : null,
-        academicYear: record.academicYear,
+        paid_at: record.status === "paid" ? new Date() : null,
+        academic_year: record.academicYear,
         createdAt: new Date(),
       };
       this.fees.set(fee.id, fee);
@@ -190,11 +199,16 @@ export class MemStorage implements IStorage {
       const announcement: Announcement = {
         id: randomUUID(),
         title: record.title,
+        message: record.description,
         description: record.description,
+        image_url: null,
+        target_class: null,
+        target_section: null,
         department: record.department,
-        postedAt: new Date(),
-        views: record.views,
-        priority: record.priority,
+        post_date: new Date().toISOString().split('T')[0],
+        created_by: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
       this.announcements.set(announcement.id, announcement);
     });
@@ -204,12 +218,12 @@ export class MemStorage implements IStorage {
     return this.students.get(id);
   }
 
-  async getStudentByCredential(credential: string, type: 'studentId' | 'mobile'): Promise<Student | undefined> {
+  async getStudentByCredential(credential: string, type: 'login_id' | 'phone'): Promise<Student | undefined> {
     return Array.from(this.students.values()).find(student => {
-      if (type === 'studentId') {
-        return student.studentId === credential;
+      if (type === 'login_id') {
+        return student.login_id === credential;
       } else {
-        return student.mobileNumber === credential;
+        return student.phone === credential;
       }
     });
   }
@@ -217,9 +231,28 @@ export class MemStorage implements IStorage {
   async createStudent(insertStudent: InsertStudent): Promise<Student> {
     const id = randomUUID();
     const student: Student = { 
-      ...insertStudent, 
       id,
-      createdAt: new Date()
+      name: insertStudent.name || null,
+      full_name: insertStudent.full_name || null,
+      class: insertStudent.class,
+      section: insertStudent.section || null,
+      login_id: insertStudent.login_id,
+      password: insertStudent.password,
+      fee_status: insertStudent.fee_status || null,
+      phone: insertStudent.phone || null,
+      phone1: insertStudent.phone1 || null,
+      phone2: insertStudent.phone2 || null,
+      mobile_2: insertStudent.mobile_2 || null,
+      email: insertStudent.email || null,
+      address: insertStudent.address || null,
+      parent_name: insertStudent.parent_name || null,
+      mother_name: insertStudent.mother_name || null,
+      parent_relation: insertStudent.parent_relation || null,
+      fee_paid: insertStudent.fee_paid || null,
+      fee_pending: insertStudent.fee_pending || null,
+      discount_amount: insertStudent.discount_amount || null,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     this.students.set(id, student);
     return student;
@@ -227,7 +260,7 @@ export class MemStorage implements IStorage {
 
   async getStudentAttendance(studentId: string): Promise<Attendance[]> {
     return Array.from(this.attendance.values())
-      .filter(record => record.studentId === studentId)
+      .filter(record => record.student_id === studentId)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
 
@@ -243,8 +276,8 @@ export class MemStorage implements IStorage {
 
   async getStudentHomework(studentId: string): Promise<Homework[]> {
     return Array.from(this.homework.values())
-      .filter(hw => hw.studentId === studentId)
-      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+      .filter(hw => hw.student_id === studentId)
+      .sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime());
   }
 
   async updateHomeworkStatus(id: string, status: string): Promise<void> {
@@ -252,7 +285,7 @@ export class MemStorage implements IStorage {
     if (homework) {
       homework.status = status;
       if (status === 'completed') {
-        homework.submittedAt = new Date();
+        homework.submitted_at = new Date();
       }
       this.homework.set(id, homework);
     }
@@ -260,21 +293,21 @@ export class MemStorage implements IStorage {
 
   async getStudentFees(studentId: string): Promise<Fee[]> {
     return Array.from(this.fees.values())
-      .filter(fee => fee.studentId === studentId)
-      .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime());
+      .filter(fee => fee.student_id === studentId)
+      .sort((a, b) => new Date(b.due_date).getTime() - new Date(a.due_date).getTime());
   }
 
   async getFeeStats(studentId: string): Promise<{ paid: number; pending: number }> {
     const fees = await this.getStudentFees(studentId);
-    const paid = fees.filter(f => f.status === 'paid').reduce((sum, f) => sum + f.amount, 0);
-    const pending = fees.filter(f => f.status === 'pending').reduce((sum, f) => sum + f.amount, 0);
+    const paid = fees.filter(f => f.status === 'paid').reduce((sum, f) => sum + parseFloat(f.amount), 0);
+    const pending = fees.filter(f => f.status === 'pending').reduce((sum, f) => sum + parseFloat(f.amount), 0);
     
     return { paid, pending };
   }
 
   async getAllAnnouncements(): Promise<Announcement[]> {
     return Array.from(this.announcements.values())
-      .sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+      .sort((a, b) => new Date(b.post_date || 0).getTime() - new Date(a.post_date || 0).getTime());
   }
 }
 

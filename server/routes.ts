@@ -20,15 +20,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         student: {
           id: student.id,
-          studentId: student.studentId,
+          login_id: student.login_id,
           name: student.name,
           class: student.class,
           section: student.section,
-          rollNumber: student.rollNumber,
-          fatherName: student.fatherName,
-          motherName: student.motherName,
-          guardianPhone: student.guardianPhone,
-          guardianEmail: student.guardianEmail,
+          phone: student.phone,
+          parent_name: student.parent_name,
+          mother_name: student.mother_name,
+          email: student.email,
         }
       });
     } catch (error) {
@@ -42,22 +41,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Student data
   app.get("/api/student/:studentId", async (req, res) => {
     try {
-      const student = await storage.getStudentByCredential(req.params.studentId, 'studentId');
+      const student = await storage.getStudentByCredential(req.params.studentId, 'login_id');
       if (!student) {
         return res.status(404).json({ message: "Student not found" });
       }
       
       res.json({
         id: student.id,
-        studentId: student.studentId,
+        login_id: student.login_id,
         name: student.name,
         class: student.class,
         section: student.section,
-        rollNumber: student.rollNumber,
-        fatherName: student.fatherName,
-        motherName: student.motherName,
-        guardianPhone: student.guardianPhone,
-        guardianEmail: student.guardianEmail,
+        phone: student.phone,
+        parent_name: student.parent_name,
+        mother_name: student.mother_name,
+        email: student.email,
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
