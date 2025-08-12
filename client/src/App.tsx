@@ -7,9 +7,16 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
+import { useEffect } from "react";
+import { handlePendingNotificationActions } from "@/services/notifications";
 
 function AppContent() {
   const { student } = useAuth();
+
+  useEffect(() => {
+    // Handle any pending notification actions when app starts
+    handlePendingNotificationActions();
+  }, []);
 
   if (!student) {
     return <Login />;

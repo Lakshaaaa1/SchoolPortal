@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Student, LoginCredentials } from "@shared/schema";
+import { setupNotifications } from "@/services/notifications";
 
 interface AuthContextType {
   student: Student | null;
@@ -52,6 +53,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setStudent(data);
       localStorage.setItem("student", JSON.stringify(data));
+      
+      // Setup push notifications after successful login
+      try {
+        await setupNotifications({
+          studentId: data.login_id,
+          className: data.class,
+          section: data.section || undefined
+        });
+      } catch (notificationError) {
+        console.error("Failed to setup push notifications:", notificationError);
+        // Don't throw - login should still succeed even if notifications fail
+      }
     } catch (error) {
       throw error;
     } finally {

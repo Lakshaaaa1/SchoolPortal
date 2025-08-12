@@ -145,6 +145,16 @@ export const leaves = pgTable("leaves", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Student tokens table for push notifications
+export const student_tokens = pgTable("student_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  student_id: varchar("student_id").notNull(),
+  class: text("class").notNull(),
+  section: text("section"),
+  fcm_token: text("fcm_token").notNull(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertStudentSchema = createInsertSchema(students).omit({
   id: true,
@@ -184,6 +194,11 @@ export const insertLeaveSchema = createInsertSchema(leaves).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+});
+
+export const insertStudentTokenSchema = createInsertSchema(student_tokens).omit({
+  id: true,
+  updated_at: true,
 });
 
 // Additional tables for legacy compatibility
@@ -261,6 +276,8 @@ export type InsertTimetable = z.infer<typeof insertTimetableSchema>;
 export type Teacher = typeof teachers.$inferSelect;
 export type Leave = typeof leaves.$inferSelect;
 export type InsertLeave = z.infer<typeof insertLeaveSchema>;
+export type StudentToken = typeof student_tokens.$inferSelect;
+export type InsertStudentToken = z.infer<typeof insertStudentTokenSchema>;
 export type LoginCredentials = z.infer<typeof loginSchema>;
 
 // Legacy compatibility types
