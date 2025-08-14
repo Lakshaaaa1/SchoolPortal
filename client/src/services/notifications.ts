@@ -109,10 +109,29 @@ function setupNotificationListeners(studentId: string, className: string, sectio
   // Called when the device receives a registration token
   PushNotifications.addListener('registration', async (token) => {
     console.log('Registration token received:', token.value);
-    
     try {
-      // Save or update the FCM token in Supabase
-      await saveTokenToDatabase(studentId, className, section, token.value);
+      // Check if studentId is a valid UUID
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      let resolvedStudentId = studentId;
+      if (!uuidRegex.test(studentId)) {
+        // Lookup by login_id or name
+        const { data, error } = await supabase
+          .from('students')
+          .select('id')
+          .or(`login_id.eq.${studentId},name.eq.${studentId}`)
+          .maybeSingle();
+        if (error) {
+          console.error('Error looking up student UUID:', error);
+          return;
+        }
+        if (!data || !data.id) {
+          console.error('No student found for identifier:', studentId);
+          return;
+        }
+        resolvedStudentId = data.id;
+      }
+      // Save or update the FCM token in Supabase using the resolved UUID
+      await saveTokenToDatabase(resolvedStudentId, className, section, token.value);
     } catch (error) {
       console.error('Error saving token to database:', error);
     }
