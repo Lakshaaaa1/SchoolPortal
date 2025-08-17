@@ -1,4 +1,14 @@
 import { PushNotifications, PushNotificationSchema, ActionPerformed } from '@capacitor/push-notifications';
+import { Capacitor } from '@capacitor/core';
+// Try to import FCM if available
+let FCM: any = undefined;
+try {
+  // Dynamically import FCM if installed
+  FCM = require('@capacitor-community/fcm').FCM;
+} catch (e) {
+  // FCM not installed or not available
+  FCM = undefined;
+}
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/lib/supabase';
@@ -24,6 +34,38 @@ export async function setupNotifications({ studentId, className, section }: Noti
     return;
   }
 
+  // --- Create Android notification channel for announcements ---
+  if (Capacitor.getPlatform() === 'android') {
+    try {
+      if (FCM && FCM.createChannel) {
+        // Use Capacitor FCM plugin if available
+        await FCM.createChannel({
+          id: 'announcements',
+          name: 'Announcements',
+          importance: 4, // 4 = high
+          sound: 'default',
+          visibility: 1, // 1 = public
+          description: 'Channel for important announcements'
+        });
+        console.log('Android notification channel "announcements" created via FCM');
+      } else if (PushNotifications.createChannel) {
+        // Fallback: Use PushNotifications plugin if it supports createChannel
+        await PushNotifications.createChannel({
+          id: 'announcements',
+          name: 'Announcements',
+          importance: 4,
+          sound: 'default',
+          description: 'Channel for important announcements'
+        });
+        console.log('Android notification channel "announcements" created via PushNotifications');
+      } else {
+        console.warn('No API available to create Android notification channel. Please ensure FCM or PushNotifications plugin supports channel creation.');
+      }
+    } catch (err) {
+      console.error('Failed to create Android notification channel:', err);
+    }
+  }
+
   try {
     console.log('Setting up push notifications for student:', studentId);
 
@@ -33,14 +75,14 @@ export async function setupNotifications({ studentId, className, section }: Noti
     if (permResult.receive === 'granted') {
       console.log('Push notification permission granted');
       
-      // Register with Apple / Google to receive push via APNS/FCM
-      await PushNotifications.register();
-      
-      // Add listeners for push notification events
-      setupNotificationListeners(studentId, className, section);
-      
-      notificationsInitialized = true;
-      console.log('Push notifications setup completed');
+  // Register with Apple / Google to receive push via APNS/FCM
+  await PushNotifications.register();
+
+  // Add listeners for push notification events
+  setupNotificationListeners(studentId, className, section);
+
+  notificationsInitialized = true;
+  console.log('Push notifications setup completed');
     } else {
       console.log('Push notification permission denied');
     }
@@ -64,6 +106,7 @@ function setupNotificationListeners(studentId: string, className: string, sectio
             id: Math.floor(Math.random() * 100000),
             schedule: { at: new Date(Date.now() + 1000) },
             sound: 'default',
+            channelId: 'announcements', // Ensure it uses the correct channel
             attachments: undefined,
             actionTypeId: '',
             extra: notification.data
