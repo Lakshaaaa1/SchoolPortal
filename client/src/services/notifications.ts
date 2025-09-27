@@ -1,16 +1,30 @@
-import { PushNotifications, PushNotificationSchema, ActionPerformed } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
-// Try to import FCM if available
+
+// Initialize notification services - these will be loaded dynamically for native platforms
+let PushNotifications: any = undefined;
+let LocalNotifications: any = undefined;
 let FCM: any = undefined;
-try {
-  // Dynamically import FCM if installed
-  FCM = require('@capacitor-community/fcm').FCM;
-} catch (e) {
-  // FCM not installed or not available
-  FCM = undefined;
+
+// Function to initialize Capacitor plugins for native platforms
+async function initializeCapacitorPlugins() {
+  if (!Capacitor.isNativePlatform()) {
+    return;
+  }
+
+  try {
+    // Dynamic imports for native platforms only
+    const pushModule = await import('@capacitor/push-notifications');
+    PushNotifications = pushModule.PushNotifications;
+    
+    const localModule = await import('@capacitor/local-notifications');
+    LocalNotifications = localModule.LocalNotifications;
+    
+    // FCM is optional - skip this import for now as it's not needed in web environment
+    FCM = undefined;
+  } catch (e) {
+    console.log('Capacitor plugins not available in web environment');
+  }
 }
-import { LocalNotifications } from '@capacitor/local-notifications';
-import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/lib/supabase';
 
 export interface NotificationSetupParams {
@@ -27,6 +41,9 @@ export async function setupNotifications({ studentId, className, section }: Noti
     console.log('Push notifications are only available on native platforms');
     return;
   }
+
+  // Initialize Capacitor plugins first
+  await initializeCapacitorPlugins();
 
   // Prevent duplicate initialization
   if (notificationsInitialized) {
@@ -281,6 +298,14 @@ export function handlePendingNotificationActions() {
 
 export async function requestNotificationPermissions(): Promise<boolean> {
   if (!Capacitor.isNativePlatform()) {
+    return false;
+  }
+
+  // Initialize Capacitor plugins first
+  await initializeCapacitorPlugins();
+
+  if (!PushNotifications) {
+    console.log('PushNotifications not available');
     return false;
   }
 
