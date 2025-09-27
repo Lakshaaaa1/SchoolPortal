@@ -1,0 +1,59 @@
+This is a student-side app for my school ERP system.
+
+Use the uploaded files and connect the app to my Supabase database:
+- Supabase project URL: https://vlayfdbhjwhodpvruohc.supabase.co
+- Supabase anon public API key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsYXlmZGJoandob2RwdnJ1b2hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMTg4MDUsImV4cCI6MjA2NTU5NDgwNX0.DuDwvruX0Aasj3YbTXvbPxdsKUJX9ppQF243AdfvdyU
+
+Fetch data from Supabase tables and integrate it into the following student features:
+
+---
+
+### 👩‍🎓 Student App Features to Include:
+1. **Login Page:**
+   - Login with student ID or mobile number
+   - Verify against `students` table in Supabase
+
+2. **Dashboard:**
+   - Show student name, class, attendance percentage
+   - Recent announcements (from `announcements` table)
+
+3. **Attendance:**
+   - Fetch attendance records from `attendance_records` table
+   - Display in calendar format (P = present, A = absent)
+
+4. **Homework:**
+   - Show list of homework from `homework` table
+   - Filter by class and date
+
+5. **Fees Section:**
+   - Show current year fee status from `fees` table
+   - Display paid/remaining dues
+   - Include due date and payment history
+
+6. **Exam Schedule:**
+   - Pull from `exam_schedule` table
+   - Show subject-wise date/time, type (mid-term, final)
+
+7. **Results / Report Card:**
+   - Display marks from `results` or `marksheet` table
+   - Subject-wise score with total and grade
+
+8. **Announcements:**
+   - From `announcements` table
+   - Sort by newest first
+
+9. **Profile:**
+   - Student details (from `students` table)
+   - Add edit option for address or phone (optional)
+
+---
+
+### 🛠️ Additional Instructions:
+- All data should come directly from Supabase.
+- Ensure student login only sees their class data.
+- Use role-based logic if possible (e.g. restrict access to student only).
+- Use dropdown or tabs for easy navigation.
+- Style with student-friendly UI (blue/green theme).
+- Make it mobile-optimized.
+
+---
