@@ -91,6 +91,7 @@ export const announcements = pgTable("announcements", {
   message: text("message"),
   description: text("description"),
   image_url: text("image_url"),
+  video_url: text("video_url"),
   target_class: text("target_class"),
   target_section: text("target_section"),
   department: text("department"),

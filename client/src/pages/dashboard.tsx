@@ -20,6 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import Header from "@/components/header";
 import BottomNavigation from "@/components/bottom-navigation";
+import AnnouncementCard from "@/components/announcement-card";
 import type { HomeworkAssignment, Announcement, ExamMarks, FeePayment, FeeStructure, Timetable, Teacher, Leave } from "@shared/schema";
 
 export default function Dashboard() {
@@ -297,15 +298,7 @@ export default function Dashboard() {
         <CardContent className="space-y-3">
           {recentAnnouncements.length > 0 ? (
             recentAnnouncements.map((announcement) => (
-              <div key={announcement.id} className="border-l-4 border-primary pl-3">
-                <p className="font-medium text-sm">{announcement.title || announcement.message}</p>
-                <p className="text-xs text-gray-600 line-clamp-2 mt-1">
-                  {announcement.description || announcement.message}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {announcement.department} • {formatTimeAgo(new Date(announcement.created_at))}
-                </p>
-              </div>
+              <AnnouncementCard key={announcement.id} announcement={announcement} />
             ))
           ) : (
             <p className="text-sm text-gray-600">No recent announcements</p>
