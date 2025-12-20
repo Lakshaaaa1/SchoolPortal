@@ -6,8 +6,8 @@ function extractYouTubeVideoId(url: string): string | null {
   if (!url) return null;
   
   try {
-    // Handle YouTube URLs: https://www.youtube.com/watch?v=dQw4w9WgXcQ or https://youtu.be/dQw4w9WgXcQ
-    const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    // Handle YouTube URLs: watch URLs, shorts, and youtu.be links
+    const youtubeRegex = /(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const match = url.match(youtubeRegex);
     return match ? match[1] : null;
   } catch (error) {

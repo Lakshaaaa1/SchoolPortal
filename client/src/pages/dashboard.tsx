@@ -706,27 +706,9 @@ export default function Dashboard() {
       <div className="space-y-4">
         {announcements && announcements.length > 0 ? (
           announcements.map((announcement) => (
-            <Card key={announcement.id} className="border-l-4 border-l-primary">
+            <Card key={announcement.id}>
               <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center mb-2">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                        <Megaphone className="text-blue-600 h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm">{announcement.title || announcement.message}</p>
-                        <p className="text-xs text-gray-600">{announcement.department || 'School Administration'}</p>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-700 mb-3">
-                      {announcement.description || announcement.message}
-                    </p>
-                    <div className="flex items-center text-xs text-gray-500">
-                      <span>{formatTimeAgo(announcement.createdAt)}</span>
-                    </div>
-                  </div>
-                </div>
+                <AnnouncementCard announcement={announcement} />
               </CardContent>
             </Card>
           ))
