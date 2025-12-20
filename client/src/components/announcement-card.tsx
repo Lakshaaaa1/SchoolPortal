@@ -72,6 +72,18 @@ export default function AnnouncementCard({ announcement }: { announcement: Annou
         </div>
       )}
 
+      {/* Image Section - Display if image_url exists and no video */}
+      {announcement.image_url && !hasValidVideo && (
+        <img
+          src={announcement.image_url}
+          alt="Announcement"
+          className="w-full h-40 object-cover rounded-lg mb-3"
+          onError={(e) => {
+            (e.target as HTMLElement).style.display = 'none';
+          }}
+        />
+      )}
+
       {/* Text Content */}
       <p className="font-medium text-sm" data-testid={`title-${announcement.id}`}>
         {announcement.title || announcement.message}
@@ -80,7 +92,7 @@ export default function AnnouncementCard({ announcement }: { announcement: Annou
         {announcement.description || announcement.message}
       </p>
       <p className="text-xs text-gray-400 mt-1" data-testid={`metadata-${announcement.id}`}>
-        {announcement.department} • {formatTimeAgo(announcement.created_at || new Date())}
+        {announcement.department} • {formatTimeAgo(announcement.createdAt || new Date())}
       </p>
     </div>
   );

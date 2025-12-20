@@ -118,7 +118,8 @@ export default function Dashboard() {
     return `₹${amount.toLocaleString()}`;
   };
 
-  const formatTimeAgo = (date: Date) => {
+  const formatTimeAgo = (date: Date | null) => {
+    if (!date) return "Recently";
     const now = new Date();
     const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
     
@@ -722,7 +723,7 @@ export default function Dashboard() {
                       {announcement.description || announcement.message}
                     </p>
                     <div className="flex items-center text-xs text-gray-500">
-                      <span>{formatTimeAgo(new Date(announcement.created_at))}</span>
+                      <span>{formatTimeAgo(announcement.createdAt)}</span>
                     </div>
                   </div>
                 </div>
