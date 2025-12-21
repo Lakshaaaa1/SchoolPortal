@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Calendar,
   CreditCard,
@@ -25,7 +25,24 @@ import type { HomeworkAssignment, Announcement, ExamMarks, FeePayment, FeeStruct
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const { student } = useAuth();
+  const [navHistory, setNavHistory] = useState<string[]>(["dashboard"]);
+  const { student, logout } = useAuth();
+  
+  // Handle device back button
+  useEffect(() => {
+    const handlePopState = () => {
+      if (activeTab === "dashboard") {
+        // If on dashboard, close the app
+        window.history.back();
+      } else {
+        // Otherwise go back to previous tab
+        setActiveTab("dashboard");
+      }
+    };
+    
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [activeTab]);
 
   // Fetch homework data from Supabase
   const { data: homeworkData } = useQuery<HomeworkAssignment[]>({
@@ -143,12 +160,6 @@ export default function Dashboard() {
 
   const renderDashboard = () => (
     <div className="p-4 space-y-4 slide-up pb-20">
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4 mb-4">
-        <h2 className="text-xl font-bold">Welcome back, {student?.full_name || student?.name}!</h2>
-        <p className="text-blue-100">Class {student?.class}{student?.section ? `-${student?.section}` : ""}</p>
-      </div>
-
       {/* Interactive Feature Cards - 3 per row grid */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {/* Fee Status Card */}
@@ -813,6 +824,17 @@ export default function Dashboard() {
             >
               <FileText className="h-4 w-4 mr-2" />
               Leave Requests
+            </Button>
+            <Button 
+              variant="destructive" 
+              className="w-full justify-start mt-4"
+              onClick={() => {
+                logout();
+              }}
+              data-testid="button-logout"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Logout
             </Button>
           </div>
         </CardContent>
